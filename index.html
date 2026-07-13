@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>스테이블코인 김치프리미엄 트래커</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="김프 트래커" />
+<link rel="apple-touch-icon" href="icon128.png" />
+<style>
+  :root {
+    --bg: #0b0e14;
+    --panel: #151a24;
+    --panel-2: #1c2330;
+    --border: #252d3b;
+    --text: #e6ebf2;
+    --muted: #8b97a8;
+    --accent: #4f8cff;
+    --green: #2ecc71;
+    --red: #ff5d5d;
+    --yellow: #f5c451;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 28px 18px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  h1 span { color: var(--accent); }
+  .status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); transition: background .3s; }
+  .dot.live { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 1.6s infinite; }
+  .dot.err { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+  /* 환율 줄 */
+  .fx { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .fx .label { font-size: 13px; color: var(--muted); }
+  .fx .val { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .fx .val small { font-size: 14px; color: var(--muted); font-weight: 500; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
+  .card .coin { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .badge { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #0b0e14; }
+  .badge.usdt { background: #26a17b; color: #fff; }
+  .badge.usdc { background: #2775ca; color: #fff; }
+  .coin .name { font-size: 16px; font-weight: 700; }
+  .coin .sub { font-size: 12px; color: var(--muted); }
+
+  .rows { display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; }
+  .row .k { font-size: 13px; color: var(--muted); }
+  .row .v { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .premium { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); text-align: center; }
+  .premium .plabel { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .premium .pval { font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+  .premium .pval.pos { color: var(--green); }
+  .premium .pval.neg { color: var(--red); }
+  .premium .pgap { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .flash { animation: flash .5s; }
+  @keyframes flash { 0% { background: rgba(79,140,255,.18);} 100%{background:transparent;} }
+
+  .converter { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin-bottom: 18px; }
+  .converter .ctitle { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .converter .input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; max-width: 320px; }
+  .converter .input-row .prefix { font-size: 20px; color: var(--muted); font-weight: 700; }
+  .converter input[type="text"] {
+    flex: 1; background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; color: var(--text); font-size: 20px; font-weight: 700;
+    font-variant-numeric: tabular-nums; outline: none;
+  }
+  .converter input[type="text"]:focus { border-color: var(--accent); }
+  .converter .results { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 680px) { .converter .results { grid-template-columns: 1fr; } }
+  .converter .rrow { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; background: var(--panel-2); border-radius: 12px; }
+  .converter .rrow .rk { font-size: 12.5px; color: var(--muted); }
+  .converter .rrow .rv { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .converter .rrow.diff .rv.pos { color: var(--green); }
+  .converter .rrow.diff .rv.neg { color: var(--red); }
+
+  footer { margin-top: 26px; font-size: 12px; color: var(--muted); line-height: 1.7; text-align: center; }
+  footer code { background: var(--panel-2); padding: 1px 6px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>스테이블코인 <span>김치프리미엄</span> 트래커</h1>
+    <div class="status">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">연결 중…</span>
+    </div>
+  </header>
+
+  <div class="fx" id="fxCard">
+    <div>
+      <div class="label">원/달러 환율 (USD/KRW · <span id="fxSrc">—</span>)</div>
+      <div class="val"><span id="fxRate">—</span> <small>원</small></div>
+    </div>
+    <div style="text-align:right;">
+      <div class="label">마지막 업데이트</div>
+      <div class="val" style="font-size:15px;"><span id="lastUpdate">—</span></div>
+    </div>
+  </div>
+
+  <div class="converter">
+    <div class="ctitle">달러 → 원화 환산기</div>
+    <div class="input-row">
+      <span class="prefix">$</span>
+      <input type="text" id="usdInput" inputmode="decimal" placeholder="예: 100" autocomplete="off" />
+    </div>
+    <div class="results">
+      <div class="rrow">
+        <span class="rk">환율 적용 (공식 환율 기준)</span>
+        <span class="rv" id="conv-fx">—</span>
+      </div>
+      <div class="rrow">
+        <span class="rk">USDT로 환전 시 (업비트 시세 기준)</span>
+        <span class="rv" id="conv-usdt">—</span>
+      </div>
+      <div class="rrow">
+        <span class="rk">USDC로 환전 시 (업비트 시세 기준)</span>
+        <span class="rv" id="conv-usdc">—</span>
+      </div>
+      <div class="rrow diff">
+        <span class="rk">김프 반영 차액 (USDT 기준)</span>
+        <span class="rv" id="conv-diff">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- USDT -->
+    <div class="card" id="card-USDT">
+      <div class="coin">
+        <div class="badge usdt">₮</div>
+        <div>
+          <div class="name">테더 (USDT)</div>
+          <div class="sub">업비트 KRW-USDT</div>
+        </div>
+      </div>
+      <div class="rows">
+        <div class="row"><span class="k">업비트 원화가</span><span class="v" id="USDT-krw">—</span></div>
+        <div class="row"><span class="k">글로벌 USD가</span><span class="v" id="USDT-usd">—</span></div>
+        <div class="row"><span class="k">환율 환산 적정가</span><span class="v" id="USDT-fair">—</span></div>
+      </div>
+      <div class="premium">
+        <div class="plabel">김치 프리미엄</div>
+        <div class="pval" id="USDT-prem">—</div>
+        <div class="pgap" id="USDT-gap">—</div>
+      </div>
+    </div>
+
+    <!-- USDC -->
+    <div class="card" id="card-USDC">
+      <div class="coin">
+        <div class="badge usdc">$</div>
+        <div>
+          <div class="name">USD 코인 (USDC)</div>
+          <div class="sub">업비트 KRW-USDC</div>
+        </div>
+      </div>
+      <div class="rows">
+        <div class="row"><span class="k">업비트 원화가</span><span class="v" id="USDC-krw">—</span></div>
+        <div class="row"><span class="k">글로벌 USD가</span><span class="v" id="USDC-usd">—</span></div>
+        <div class="row"><span class="k">환율 환산 적정가</span><span class="v" id="USDC-fair">—</span></div>
+      </div>
+      <div class="premium">
+        <div class="plabel">김치 프리미엄</div>
+        <div class="pval" id="USDC-prem">—</div>
+        <div class="pgap" id="USDC-gap">—</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>김프 = (업비트 원화가 ÷ (환율 × 글로벌 USD가) − 1) × 100</div>
+    <div>업비트 시세 3초 · 환율 3초 · 글로벌가 15초 주기 갱신 &nbsp;|&nbsp; 데이터: Upbit · Dunamu · CoinGecko</div>
+  </footer>
+</div>
+
+<script>
+const KRW = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 });
+const USD = new Intl.NumberFormat('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+
+const state = {
+  fxRate: null,                          // USD/KRW
+  fxSource: '',                          // 환율 출처
+  global: { USDT: 1.0, USDC: 1.0 },      // 글로벌 USD 가격 (기본 1.0)
+  upbit: { USDT: null, USDC: null },     // 업비트 KRW 가격
+};
+
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+
+function setStatus(ok, msg) {
+  statusDot.className = 'dot ' + (ok ? 'live' : 'err');
+  statusText.textContent = msg;
+}
+
+function flash(el) {
+  if (!el) return;
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+}
+
+// ---- 데이터 수집 ----
+async function fetchUpbit() {
+  const res = await fetch('https://api.upbit.com/v1/ticker?markets=KRW-USDT,KRW-USDC');
+  if (!res.ok) throw new Error('upbit');
+  const data = await res.json();
+  for (const t of data) {
+    if (t.market === 'KRW-USDT') state.upbit.USDT = t.trade_price;
+    if (t.market === 'KRW-USDC') state.upbit.USDC = t.trade_price;
+  }
+}
+
+const FX_SOURCES = [
+  { name: '두나무', url: 'https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD',
+    pick: d => d && d[0] && d[0].basePrice },
+  { name: 'er-api', url: 'https://open.er-api.com/v6/latest/USD',
+    pick: d => d && d.rates && d.rates.KRW },
+  { name: 'frankfurter', url: 'https://api.frankfurter.app/latest?from=USD&to=KRW',
+    pick: d => d && d.rates && d.rates.KRW },
+];
+
+async function fetchForex() {
+  let lastErr;
+  for (const src of FX_SOURCES) {
+    try {
+      const res = await fetch(src.url);
+      if (!res.ok) throw new Error(res.status);
+      const rate = src.pick(await res.json());
+      if (rate) { state.fxRate = rate; state.fxSource = src.name; return; }
+      throw new Error('no rate');
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('forex');
+}
+
+async function fetchGlobal() {
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether,usd-coin&vs_currencies=usd');
+    if (!res.ok) return;
+    const d = await res.json();
+    if (d.tether && d.tether.usd) state.global.USDT = d.tether.usd;
+    if (d['usd-coin'] && d['usd-coin'].usd) state.global.USDC = d['usd-coin'].usd;
+  } catch (e) { /* 실패 시 기본 1.0 유지 */ }
+}
+
+// ---- 렌더링 ----
+function render() {
+  if (state.fxRate) document.getElementById('fxRate').textContent = KRW.format(state.fxRate);
+  if (state.fxSource) document.getElementById('fxSrc').textContent = state.fxSource;
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ko-KR');
+
+  for (const sym of ['USDT', 'USDC']) {
+    const krw = state.upbit[sym];
+    const g = state.global[sym];
+    const fx = state.fxRate;
+
+    const krwEl = document.getElementById(sym + '-krw');
+    const prev = krwEl.dataset.v;
+    krwEl.textContent = krw ? KRW.format(krw) + ' 원' : '—';
+    if (krw && prev && Number(prev) !== krw) flash(krwEl);
+    krwEl.dataset.v = krw || '';
+
+    document.getElementById(sym + '-usd').textContent = '$' + USD.format(g);
+
+    if (krw && fx) {
+      const fair = fx * g;                       // 환율로 환산한 적정 원화가
+      const prem = (krw / fair - 1) * 100;
+      document.getElementById(sym + '-fair').textContent = KRW.format(fair) + ' 원';
+
+      const pEl = document.getElementById(sym + '-prem');
+      pEl.textContent = (prem >= 0 ? '+' : '') + prem.toFixed(2) + '%';
+      pEl.className = 'pval ' + (prem >= 0 ? 'pos' : 'neg');
+
+      document.getElementById(sym + '-gap').textContent =
+        (prem >= 0 ? '적정가보다 +' : '적정가보다 ') + KRW.format(krw - fair) + '원';
+    }
+  }
+
+  updateConverter();
+}
+
+const usdInput = document.getElementById('usdInput');
+
+function formatKRW(v) {
+  return KRW.format(v) + ' 원';
+}
+
+function updateConverter() {
+  const raw = usdInput.value.replace(/,/g, '').trim();
+  const amount = parseFloat(raw);
+
+  const fxEl = document.getElementById('conv-fx');
+  const usdtEl = document.getElementById('conv-usdt');
+  const usdcEl = document.getElementById('conv-usdc');
+  const diffEl = document.getElementById('conv-diff');
+
+  if (!raw || isNaN(amount) || amount <= 0) {
+    fxEl.textContent = '—';
+    usdtEl.textContent = '—';
+    usdcEl.textContent = '—';
+    diffEl.textContent = '—';
+    diffEl.className = 'rv';
+    return;
+  }
+
+  if (state.fxRate) {
+    fxEl.textContent = formatKRW(amount * state.fxRate);
+  } else {
+    fxEl.textContent = '환율 대기 중…';
+  }
+
+  if (state.upbit.USDT && state.global.USDT) {
+    const coinsNeeded = amount / state.global.USDT;
+    usdtEl.textContent = formatKRW(coinsNeeded * state.upbit.USDT);
+  } else {
+    usdtEl.textContent = '시세 대기 중…';
+  }
+
+  if (state.upbit.USDC && state.global.USDC) {
+    const coinsNeeded = amount / state.global.USDC;
+    usdcEl.textContent = formatKRW(coinsNeeded * state.upbit.USDC);
+  } else {
+    usdcEl.textContent = '시세 대기 중…';
+  }
+
+  if (state.fxRate && state.upbit.USDT && state.global.USDT) {
+    const fair = amount * state.fxRate;
+    const actual = (amount / state.global.USDT) * state.upbit.USDT;
+    const diff = actual - fair;
+    diffEl.textContent = (diff >= 0 ? '+' : '') + formatKRW(diff);
+    diffEl.className = 'rv ' + (diff >= 0 ? 'pos' : 'neg');
+  } else {
+    diffEl.textContent = '—';
+    diffEl.className = 'rv';
+  }
+}
+
+usdInput.addEventListener('input', updateConverter);
+
+// ---- 폴링 루프 ----
+async function tickFast() {
+  try {
+    await Promise.all([fetchUpbit(), fetchForex()]);
+    setStatus(true, '실시간 연결됨');
+  } catch (e) {
+    setStatus(false, '일부 데이터 오류 — 재시도 중');
+  }
+  render();
+}
+
+async function tickSlow() {
+  await fetchGlobal();
+  render();
+}
+
+tickFast();
+tickSlow();
+setInterval(tickFast, 3000);
+setInterval(tickSlow, 15000);
+</script>
+</body>
+</html>
