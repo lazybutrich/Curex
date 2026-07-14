@@ -40,11 +40,52 @@
   .dot.err { background: var(--red); }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
 
-  /* 환율 줄 */
-  .fx { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
-  .fx .label { font-size: 13px; color: var(--muted); }
-  .fx .val { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .fx .val small { font-size: 14px; color: var(--muted); font-weight: 500; }
+  /* 히어로 프레임: 달러 입력 + 공식 환율 환산 결과 (가장 먼저 눈에 띄는 영역) */
+  .hero-frame {
+    background: linear-gradient(180deg, rgba(79,140,255,.10), rgba(79,140,255,.02)), var(--panel);
+    border: 1.5px solid var(--accent);
+    border-radius: 18px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 0 1px rgba(79,140,255,.08), 0 8px 24px rgba(79,140,255,.08);
+  }
+  .hero-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .hero-top .ctitle { font-size: 15px; font-weight: 700; color: var(--text); }
+  .fx-mini { font-size: 12px; color: var(--muted); text-align: right; line-height: 1.5; }
+  .fx-mini b { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  .input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; min-width: 0; }
+  .input-row .prefix { font-size: 22px; color: var(--muted); font-weight: 700; flex-shrink: 0; }
+  .hero-frame input[type="text"] {
+    flex: 1; min-width: 0; width: 100%; background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 13px 14px; color: var(--text); font-size: 22px; font-weight: 700;
+    font-variant-numeric: tabular-nums; outline: none;
+  }
+  .hero-frame input[type="text"]:focus { border-color: var(--accent); }
+
+  .hero-result { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px; padding-top: 14px; border-top: 1px dashed var(--border); }
+  .hero-result .hero-label { font-size: 13px; color: var(--muted); }
+  .hero-result .hero-value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; color: var(--accent); }
+
+  /* 거래소별 비교 섹션 */
+  .compare-section { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; margin-bottom: 18px; }
+  .compare-title { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .compare-table { display: grid; grid-template-columns: auto auto 1fr auto; column-gap: 14px; row-gap: 12px; align-items: center; }
+  .exch { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .badge-ex { width: 22px; height: 22px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; flex-shrink: 0; }
+  .badge-ex.upbit { background: #093ea1; }
+  .badge-ex.bithumb { background: #f7931a; color: #1a1200; }
+  .coin-tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 7px; white-space: nowrap; justify-self: start; }
+  .coin-tag.usdt { background: rgba(38,161,123,.15); color: #3ecf9c; }
+  .coin-tag.usdc { background: rgba(39,117,202,.15); color: #5b9eea; }
+  .cmp-amt { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+  .diff-chip { font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; background: var(--panel-2); color: var(--muted); }
+  .diff-chip.pos { color: var(--green); background: rgba(46,204,113,.12); }
+  .diff-chip.neg { color: var(--red); background: rgba(255,93,93,.12); }
+  @media (max-width: 560px) {
+    .compare-table { grid-template-columns: auto auto 1fr; row-gap: 6px; }
+    .diff-chip { grid-column: 2 / 4; justify-self: end; margin-top: -4px; }
+  }
 
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
   @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
@@ -72,24 +113,6 @@
   .flash { animation: flash .5s; }
   @keyframes flash { 0% { background: rgba(79,140,255,.18);} 100%{background:transparent;} }
 
-  .converter { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin-bottom: 18px; }
-  .converter .ctitle { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
-  .converter .input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; max-width: 320px; }
-  .converter .input-row .prefix { font-size: 20px; color: var(--muted); font-weight: 700; }
-  .converter input[type="text"] {
-    flex: 1; background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px;
-    padding: 12px 14px; color: var(--text); font-size: 20px; font-weight: 700;
-    font-variant-numeric: tabular-nums; outline: none;
-  }
-  .converter input[type="text"]:focus { border-color: var(--accent); }
-  .converter .results { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  @media (max-width: 680px) { .converter .results { grid-template-columns: 1fr; } }
-  .converter .rrow { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; background: var(--panel-2); border-radius: 12px; }
-  .converter .rrow .rk { font-size: 12.5px; color: var(--muted); }
-  .converter .rrow .rv { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .converter .rrow.diff .rv.pos { color: var(--green); }
-  .converter .rrow.diff .rv.neg { color: var(--red); }
-
   footer { margin-top: 26px; font-size: 12px; color: var(--muted); line-height: 1.7; text-align: center; }
   footer code { background: var(--panel-2); padding: 1px 6px; border-radius: 5px; }
 </style>
@@ -104,40 +127,46 @@
     </div>
   </header>
 
-  <div class="fx" id="fxCard">
-    <div>
-      <div class="label">원/달러 환율 (USD/KRW · <span id="fxSrc">—</span>)</div>
-      <div class="val"><span id="fxRate">—</span> <small>원</small></div>
+  <div class="hero-frame">
+    <div class="hero-top">
+      <div class="ctitle">달러 → 원화 환산기</div>
+      <div class="fx-mini">
+        USD/KRW · <span id="fxSrc">—</span> · <b><span id="fxRate">—</span>원</b><br>
+        마지막 업데이트 <span id="lastUpdate">—</span>
+      </div>
     </div>
-    <div style="text-align:right;">
-      <div class="label">마지막 업데이트</div>
-      <div class="val" style="font-size:15px;"><span id="lastUpdate">—</span></div>
+    <div class="input-row">
+      <span class="prefix">$</span>
+      <input type="text" id="usdInput" inputmode="decimal" placeholder="예: 150" autocomplete="off" />
+    </div>
+    <div class="hero-result">
+      <span class="hero-label">공식 환율 적용 시</span>
+      <span class="hero-value" id="conv-fx">—</span>
     </div>
   </div>
 
-  <div class="converter">
-    <div class="ctitle">달러 → 원화 환산기</div>
-    <div class="input-row">
-      <span class="prefix">$</span>
-      <input type="text" id="usdInput" inputmode="decimal" placeholder="예: 100" autocomplete="off" />
-    </div>
-    <div class="results">
-      <div class="rrow">
-        <span class="rk">환율 적용 (공식 환율 기준)</span>
-        <span class="rv" id="conv-fx">—</span>
-      </div>
-      <div class="rrow">
-        <span class="rk">USDT로 환전 시 (업비트 시세 기준)</span>
-        <span class="rv" id="conv-usdt">—</span>
-      </div>
-      <div class="rrow">
-        <span class="rk">USDC로 환전 시 (업비트 시세 기준)</span>
-        <span class="rv" id="conv-usdc">—</span>
-      </div>
-      <div class="rrow diff">
-        <span class="rk">김프 반영 차액 (USDT 기준)</span>
-        <span class="rv" id="conv-diff">—</span>
-      </div>
+  <div class="compare-section">
+    <div class="compare-title">거래소 실제 시세로 환전 시 (스테이블코인 기준 · 공식 환율 대비 차액)</div>
+    <div class="compare-table">
+      <div class="exch"><span class="badge-ex upbit">U</span>업비트</div>
+      <span class="coin-tag usdt">USDT</span>
+      <span class="cmp-amt" id="cmp-upbit-usdt-amt">—</span>
+      <span class="diff-chip" id="cmp-upbit-usdt-diff">—</span>
+
+      <div class="exch"><span class="badge-ex upbit">U</span>업비트</div>
+      <span class="coin-tag usdc">USDC</span>
+      <span class="cmp-amt" id="cmp-upbit-usdc-amt">—</span>
+      <span class="diff-chip" id="cmp-upbit-usdc-diff">—</span>
+
+      <div class="exch"><span class="badge-ex bithumb">B</span>빗썸</div>
+      <span class="coin-tag usdt">USDT</span>
+      <span class="cmp-amt" id="cmp-bithumb-usdt-amt">—</span>
+      <span class="diff-chip" id="cmp-bithumb-usdt-diff">—</span>
+
+      <div class="exch"><span class="badge-ex bithumb">B</span>빗썸</div>
+      <span class="coin-tag usdc">USDC</span>
+      <span class="cmp-amt" id="cmp-bithumb-usdc-amt">—</span>
+      <span class="diff-chip" id="cmp-bithumb-usdc-diff">—</span>
     </div>
   </div>
 
@@ -186,8 +215,8 @@
   </div>
 
   <footer>
-    <div>김프 = (업비트 원화가 ÷ (환율 × 글로벌 USD가) − 1) × 100</div>
-    <div>업비트 시세 3초 · 환율 3초 · 글로벌가 15초 주기 갱신 &nbsp;|&nbsp; 데이터: Upbit · Dunamu · CoinGecko</div>
+    <div>김프 = (거래소 원화가 ÷ (환율 × 글로벌 USD가) − 1) × 100</div>
+    <div>거래소 시세 3초 · 환율 3초 · 글로벌가 15초 주기 갱신 &nbsp;|&nbsp; 데이터: Upbit · Bithumb · Dunamu · CoinGecko</div>
   </footer>
 </div>
 
@@ -200,6 +229,7 @@ const state = {
   fxSource: '',                          // 환율 출처
   global: { USDT: 1.0, USDC: 1.0 },      // 글로벌 USD 가격 (기본 1.0)
   upbit: { USDT: null, USDC: null },     // 업비트 KRW 가격
+  bithumb: { USDT: null, USDC: null },   // 빗썸 KRW 가격
 };
 
 const statusDot = document.getElementById('statusDot');
@@ -226,6 +256,18 @@ async function fetchUpbit() {
     if (t.market === 'KRW-USDT') state.upbit.USDT = t.trade_price;
     if (t.market === 'KRW-USDC') state.upbit.USDC = t.trade_price;
   }
+}
+
+async function fetchBithumb() {
+  try {
+    const res = await fetch('https://api.bithumb.com/public/ticker/ALL_KRW');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.data) {
+      if (data.data.USDT && data.data.USDT.closing_price) state.bithumb.USDT = parseFloat(data.data.USDT.closing_price);
+      if (data.data.USDC && data.data.USDC.closing_price) state.bithumb.USDC = parseFloat(data.data.USDC.closing_price);
+    }
+  } catch (e) { /* 빗썸 실패 시 이전 값 유지 */ }
 }
 
 const FX_SOURCES = [
@@ -308,48 +350,49 @@ function updateConverter() {
   const amount = parseFloat(raw);
 
   const fxEl = document.getElementById('conv-fx');
-  const usdtEl = document.getElementById('conv-usdt');
-  const usdcEl = document.getElementById('conv-usdc');
-  const diffEl = document.getElementById('conv-diff');
+  const combos = [
+    ['upbit', 'USDT'], ['upbit', 'USDC'],
+    ['bithumb', 'USDT'], ['bithumb', 'USDC'],
+  ];
 
   if (!raw || isNaN(amount) || amount <= 0) {
     fxEl.textContent = '—';
-    usdtEl.textContent = '—';
-    usdcEl.textContent = '—';
-    diffEl.textContent = '—';
-    diffEl.className = 'rv';
+    for (const [ex, coin] of combos) {
+      document.getElementById(`cmp-${ex}-${coin.toLowerCase()}-amt`).textContent = '—';
+      const dEl = document.getElementById(`cmp-${ex}-${coin.toLowerCase()}-diff`);
+      dEl.textContent = '—';
+      dEl.className = 'diff-chip';
+    }
     return;
   }
 
-  if (state.fxRate) {
-    fxEl.textContent = formatKRW(amount * state.fxRate);
-  } else {
-    fxEl.textContent = '환율 대기 중…';
-  }
+  const fair = state.fxRate ? amount * state.fxRate : null;
+  fxEl.textContent = fair ? formatKRW(fair) : '환율 대기 중…';
 
-  if (state.upbit.USDT && state.global.USDT) {
-    const coinsNeeded = amount / state.global.USDT;
-    usdtEl.textContent = formatKRW(coinsNeeded * state.upbit.USDT);
-  } else {
-    usdtEl.textContent = '시세 대기 중…';
-  }
+  for (const [ex, coin] of combos) {
+    const price = state[ex][coin];
+    const g = state.global[coin];
+    const amtEl = document.getElementById(`cmp-${ex}-${coin.toLowerCase()}-amt`);
+    const dEl = document.getElementById(`cmp-${ex}-${coin.toLowerCase()}-diff`);
 
-  if (state.upbit.USDC && state.global.USDC) {
-    const coinsNeeded = amount / state.global.USDC;
-    usdcEl.textContent = formatKRW(coinsNeeded * state.upbit.USDC);
-  } else {
-    usdcEl.textContent = '시세 대기 중…';
-  }
+    if (price && g) {
+      const actual = (amount / g) * price;
+      amtEl.textContent = formatKRW(actual);
 
-  if (state.fxRate && state.upbit.USDT && state.global.USDT) {
-    const fair = amount * state.fxRate;
-    const actual = (amount / state.global.USDT) * state.upbit.USDT;
-    const diff = actual - fair;
-    diffEl.textContent = (diff >= 0 ? '+' : '') + formatKRW(diff);
-    diffEl.className = 'rv ' + (diff >= 0 ? 'pos' : 'neg');
-  } else {
-    diffEl.textContent = '—';
-    diffEl.className = 'rv';
+      if (fair) {
+        const diff = actual - fair;
+        const diffPct = (diff / fair) * 100;
+        dEl.textContent = (diff >= 0 ? '+' : '') + KRW.format(diff) + '원 (' + (diffPct >= 0 ? '+' : '') + diffPct.toFixed(2) + '%)';
+        dEl.className = 'diff-chip ' + (diff >= 0 ? 'pos' : 'neg');
+      } else {
+        dEl.textContent = '—';
+        dEl.className = 'diff-chip';
+      }
+    } else {
+      amtEl.textContent = '시세 대기 중…';
+      dEl.textContent = '—';
+      dEl.className = 'diff-chip';
+    }
   }
 }
 
@@ -358,7 +401,7 @@ usdInput.addEventListener('input', updateConverter);
 // ---- 폴링 루프 ----
 async function tickFast() {
   try {
-    await Promise.all([fetchUpbit(), fetchForex()]);
+    await Promise.all([fetchUpbit(), fetchForex(), fetchBithumb()]);
     setStatus(true, '실시간 연결됨');
   } catch (e) {
     setStatus(false, '일부 데이터 오류 — 재시도 중');
